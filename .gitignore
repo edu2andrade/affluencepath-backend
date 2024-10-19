@@ -1,0 +1,12 @@
+# common
+/dist
+/node_modules
+http_requests
+
+# env variables
+.env
+env/.env.dev
+env/*.env*
+!env/.env.example*
+!env/.env.int
+!env/.env.staging
