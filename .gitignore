@@ -5,9 +5,16 @@ http_requests
 
 # env variables
 .env
+.env.dev
 env/.env.dev
 env/*.env*
 !env/.env.example*
 !env/.env.int
 !env/.env.staging
 /coverage
+
+#docker
+docker/volumes
+
+#Mac
+.DS_Store

@@ -1,0 +1,128 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model User {
+    id              String            @id @default(uuid())
+    createdAt       DateTime          @default(now())
+    updatedAt       DateTime?         @updatedAt
+    deletedaAt      DateTime?
+    email           String            @unique
+    passwordHash    String
+    username        String
+    firstName       String?
+    lastName        String?
+    role            Role              @default(MEMBER)
+    blocked         Boolean           @default(false)
+    token           Token?
+    houseHold       Household?
+    UserToHousehold UserToHousehold[]
+    Expenses        Expenses[]
+    Saving          Saving[]
+}
+
+model Token {
+    id           String    @id @default(uuid())
+    createdAt    DateTime  @default(now())
+    updatedAt    DateTime? @updatedAt
+    deletedaAt   DateTime?
+    user         User      @relation(fields: [userId], references: [id])
+    userId       String    @unique
+    refreshToken String
+    expiresAt    DateTime
+    lastUsedAt   DateTime?
+    deviceInfo   String?
+    ipAddress    String?
+}
+
+model Household {
+    id              String            @id @default(uuid())
+    createdAt       DateTime          @default(now())
+    updatedAt       DateTime?         @updatedAt
+    deletedaAt      DateTime?
+    householdName   String
+    user            User              @relation(fields: [ownerId], references: [id])
+    ownerId         String            @unique
+    UserToHousehold UserToHousehold[]
+    SavingGoals     SavingGoals[]
+    Expenses        Expenses[]
+    Saving          Saving[]
+}
+
+model UserToHousehold {
+    id          String    @id @default(uuid())
+    user        User      @relation(fields: [userId], references: [id])
+    userId      String
+    household   Household @relation(fields: [householdId], references: [id])
+    householdId String
+    role        Role      @default(ADMIN)
+}
+
+model SavingGoals {
+    id          String    @id @default(uuid())
+    createdAt   DateTime  @default(now())
+    updatedAt   DateTime? @updatedAt
+    deletedaAt  DateTime?
+    goalName    String
+    description String?
+    household   Household @relation(fields: [householdId], references: [id])
+    householdId String
+}
+
+model Expenses {
+    id                String          @id @default(uuid())
+    createdAt         DateTime        @default(now())
+    updatedAt         DateTime?       @updatedAt
+    deletedaAt        DateTime?
+    amount            Int
+    description       String?
+    user              User            @relation(fields: [userId], references: [id])
+    userId            String
+    household         Household       @relation(fields: [householdId], references: [id])
+    householdId       String
+    expenseCategory   ExpenseCategory @relation(fields: [expenseCategoryId], references: [id])
+    expenseCategoryId String
+}
+
+model ExpenseCategory {
+    id       String     @id @default(uuid())
+    name     String
+    Expenses Expenses[]
+}
+
+model Saving {
+    id               String         @id @default(uuid())
+    createdAt        DateTime       @default(now())
+    updatedAt        DateTime?      @updatedAt
+    deletedaAt       DateTime?
+    amount           Int
+    description      String?
+    user             User           @relation(fields: [userId], references: [id])
+    userId           String
+    household        Household      @relation(fields: [householdId], references: [id])
+    householdId      String
+    savingCategory   SavingCategory @relation(fields: [savingCategoryId], references: [id])
+    savingCategoryId String
+}
+
+model SavingCategory {
+    id     String   @id @default(uuid())
+    name   String
+    Saving Saving[]
+}
+
+enum Role {
+    ADMIN
+    MEMBER
+}
